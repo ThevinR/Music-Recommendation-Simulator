@@ -9,3 +9,11 @@ id,title,artist,genre,mood,energy,tempo_bpm,valence,danceability,acousticness
 8,Night Drive Loop,Neon Echo,synthwave,moody,0.75,110,0.49,0.73,0.22
 9,Focus Flow,LoRoom,lofi,focused,0.40,80,0.59,0.60,0.78
 10,Rooftop Lights,Indigo Parade,indie pop,happy,0.76,124,0.81,0.82,0.35
+11,Corner Store Kings,Dial Tone Theo,hip hop,confident,0.78,96,0.70,0.85,0.12
+12,Nocturne in Grey,Elise Varga,classical,melancholy,0.22,64,0.20,0.18,0.95
+13,Grandfather's Porch,Rye Hollow,folk,nostalgic,0.38,86,0.45,0.40,0.91
+14,Ultraviolet Hours,Pastel Machine,house,euphoric,0.88,126,0.86,0.93,0.04
+15,Slow Burn Letters,Mara Vance,r&b,romantic,0.50,92,0.68,0.71,0.30
+16,Iron Verdict,Ashfall Rite,metal,angry,0.97,168,0.22,0.45,0.03
+17,Mango Weather,Sunpost Collective,reggae,playful,0.60,98,0.88,0.80,0.28
+18,Sea Glass Waltz,Luiza Prado,bossa nova,dreamy,0.33,76,0.62,0.56,0.84
