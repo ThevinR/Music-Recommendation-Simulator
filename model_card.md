@@ -1,114 +1,270 @@
-# 🎧 Model Card: Music Recommender Simulation
+# 🎧 Model Card: MoodDial 1.0
 
-## 1. Model Name  
+## 1. Model Name
 
-Give your model a short, descriptive name.  
-Example: **VibeFinder 1.0**  
+**MoodDial 1.0**
 
----
-
-## 2. Intended Use  
-
-Describe what your recommender is designed to do and who it is for. 
-
-Prompts:  
-
-- What kind of recommendations does it generate  
-- What assumptions does it make about the user  
-- Is this for real users or classroom exploration  
+Named after the energy dial. You tell it how calm or intense you want your music, and that dial does most of the work.
 
 ---
 
-## 3. How the Model Works  
+## 2. Goal / Task
 
-Think of the model as a judge handing out points at a talent show. Every song in the catalog walks on stage one at a time, the judge compares it against a short written description of what you like, and awards points for each thing it gets right. When every song has had its turn, they are lined up from most points to fewest, and the top five are handed back as recommendations. Nothing else happens — there is no memory of past rounds and no consulting with other judges.
+MoodDial suggests songs you might like.
 
-**What the judge knows about you.** Four things, all of which you state outright: your favorite genre, your favorite mood, how energetic you want the music to be (a dial from calm to intense), and whether you have a soft spot for acoustic music. That is the entire profile. The model never watches what you actually listen to.
+You describe your taste in four words or numbers. It reads an 18-song catalog. It returns the 5 songs that best fit what you said, ranked best first.
 
-**What the judge knows about each song.** Each song in the catalog comes labeled with its genre, its mood, how energetic it is on that same calm-to-intense dial, and how acoustic it is. The catalog also records the artist, tempo, and a couple of other musical qualities, but the scoring ignores those for now.
+It does not predict what you will actually play. It only matches stated preferences to song labels. Every suggestion comes with a short list of reasons, so you can always see why a song made the list.
 
-**How the points are awarded.** A song earns two points for being in your favorite genre and one and a half points for matching your favorite mood. Energy works differently, because it is a dial rather than a label: instead of all-or-nothing, the song earns up to one and a half points depending on how close its energy is to the level you asked for. A perfect match earns the full amount, and the award shrinks steadily the further off it is, so a song that is slightly too mellow still earns most of the points while one that is wildly too intense earns almost none. Finally, if you said you like acoustic music and the song is genuinely acoustic, it picks up a half point bonus. The best a song can possibly do is five and a half points.
-
-Those numbers are deliberate rather than arbitrary. Genre is weighted heaviest because it is the bluntest dealbreaker — a heavy metal track will not satisfy someone who asked for lo-fi, no matter how perfectly its energy lines up. Mood sits just behind it, because mood is the word people actually reach for when they describe what they want to hear. Energy is worth less on purpose: it is meant to break ties between songs that already match on genre and mood, not to overrule them. And the acoustic bonus stays small because it is a preference you mentioned, not a demand you made.
-
-**Why every recommendation comes with reasons.** As the judge awards each point, they also jot down a note explaining it — "matches your favorite genre," "energy is close to what you asked for." Those notes are written at the exact moment the points are given, which means the explanation can never disagree with the score. If a song is recommended, you can see precisely which of your stated preferences earned it a place, and add up the points yourself if you doubt the result.
-
-**What changed from the starter logic.** The starter version simply returned the first five songs in the file, in whatever order they happened to appear — the profile was ignored entirely. The working version scores all eighteen songs against the profile, ranks them, and explains each result. Two smaller decisions came out of testing: ties are broken alphabetically so that running the program twice gives identical output, and genre and mood are compared without regard to capitalization so that a stray capital letter in the catalog does not silently cost a song its points.
+This is a classroom project. It is built to be explainable, not accurate.
 
 ---
 
-## 4. Data  
+## 3. How the Model Works
 
-Describe the dataset the model uses.  
+Think of the model as a judge at a talent show. Every song walks on stage one at a time. The judge compares it to a short description of what you like. Points are given for each thing the song gets right. When all songs have had a turn, they are lined up from most points to fewest. The top five are your recommendations.
 
-Prompts:  
+There is no memory and no other judges. The same profile always gives the same answer.
 
-- How many songs are in the catalog  
-- What genres or moods are represented  
-- Did you add or remove data  
-- Are there parts of musical taste missing in the dataset  
+**What the judge knows about you.** Four things, all stated by you:
 
----
+- Your favorite genre
+- Your favorite mood
+- How energetic you want the music (a dial from 0 to 1)
+- Whether you like acoustic music (yes or no)
 
-## 5. Strengths  
+That is the whole profile. The model never watches what you listen to.
 
-Where does your system seem to work well  
+**What the judge knows about each song.** Its genre, its mood, its energy on the same 0-to-1 dial, and how acoustic it is.
 
-Prompts:  
+**How points are awarded.**
 
-- User types for which it gives reasonable results  
-- Any patterns you think your scoring captures correctly  
-- Cases where the recommendations matched your intuition  
+| What matches | Points |
+|---|---|
+| Your favorite genre | 2.0 |
+| Your favorite mood | 1.5 |
+| Energy close to your dial | up to 1.5 |
+| Acoustic, and you like acoustic | 0.5 |
 
----
+Genre and mood are all-or-nothing. The song either has the right label or it does not.
 
-## 6. Limitations and Bias 
+Energy is different, because it is a dial and not a label. The song gets a share of the 1.5 points based on how close it is. A perfect match gets all of it. The award shrinks the further off the song is. **Every song gets some energy points**, even a bad match — this turns out to matter a lot, and section 6 explains why.
 
-Where the system struggles or behaves unfairly. 
+The best a song can score is 5.5.
 
-Prompts:  
+**Why these weights.** Genre is heaviest because it is the bluntest dealbreaker. A metal track will not satisfy someone who asked for lo-fi, however well the energy lines up. Mood is close behind, because mood is the word people actually use. Energy is worth less on purpose. It is meant to break ties between songs that already match, not to overrule them.
 
-- Features it does not consider  
-- Genres or moods that are underrepresented  
-- Cases where the system overfits to one preference  
-- Ways the scoring might unintentionally favor some users  
+**Why there are always reasons.** As the judge gives each point, it writes a note saying why. The notes are written at the same moment as the points. So the explanation can never disagree with the score. You can add the points up yourself.
 
----
-
-## 7. Evaluation  
-
-How you checked whether the recommender behaved as expected. 
-
-Prompts:  
-
-- Which user profiles you tested  
-- What you looked for in the recommendations  
-- What surprised you  
-- Any simple tests or comparisons you ran  
-
-No need for numeric metrics unless you created some.
+**Note on the current code.** `recommender.py` currently holds a weight experiment: genre is halved to 1.0 and energy is doubled to 3.0, so the maximum is 6.0. The 2.0 / 1.5 weights above are the original design and the basis for the numbers in sections 6 and 7. The experiment is written up in the README.
 
 ---
 
-## 8. Future Work  
+## 4. Data Used
 
-Ideas for how you would improve the model next.  
+One file: `data/songs.csv`. **18 songs.** I did not add or remove any.
 
-Prompts:  
+Each song has 10 fields: id, title, artist, genre, mood, energy, tempo, valence, danceability, acousticness. The scorer only reads four of them — genre, mood, energy, and acousticness. Tempo, valence, and danceability are loaded but never used.
 
-- Additional features or preferences  
-- Better ways to explain recommendations  
-- Improving diversity among the top results  
-- Handling more complex user tastes  
+**The catalog is wide and shallow.** There are 15 genres across 18 songs. **13 of those genres have exactly one song.** Only lo-fi has three. Only pop has two. So most users get one real genre match and nothing else.
+
+There are 14 different moods. Same story.
+
+**Energy is lopsided.** Values run from 0.22 to 0.97. But they clump at the two ends. Nine songs sit between 0.22 and 0.50. Eight sit between 0.75 and 0.97. **Only three songs land in the 0.50 to 0.75 middle.**
+
+**What is missing.** No song has more than one genre or mood label, so nothing is "jazzy hip hop." There is no release year, no language, no popularity, and no artist beyond a name. Everything is a clean single label, which is not how real taste works.
 
 ---
 
-## 9. Personal Reflection  
+## 5. Strengths
 
-A few sentences about your experience.  
+**It gets the top pick right every time.** All four test profiles returned the song a person would have picked. When an exact genre and mood match exists, the weighting finds it. That is the core job, and it works.
 
-Prompts:  
+**The explanations are trustworthy.** Reasons are generated by the same code that awards the points. They cannot drift apart. You can check the math by hand in a few seconds.
 
-- What you learned about recommender systems  
-- Something unexpected or interesting you discovered  
-- How this changed the way you think about music recommendation apps  
+**It is fully predictable.** Same profile, same answer, every run. Ties are broken alphabetically so nothing is random. Nothing learns, so nothing silently changes behavior.
+
+**Energy works well for people at the extremes.** A user asking for 0.30 or 0.90 gets a list that is clearly sorted by how calm or intense the music is. The dial does real work for them.
+
+**It works best for lo-fi listeners.** The Chill Lofi profile scored an average of 4.04 out of 5.50 across its top 5. Its 4th pick was still a genuine match. That is what the system looks like when the catalog actually has depth.
+
+---
+
+## 6. Observed Behavior / Biases
+
+### The energy gap quietly ignores moderate listeners
+
+This is the biggest problem I found.
+
+The formula measures energy distance on a 0-to-1 scale. But the catalog only spans 0.22 to 0.97. So a user asking for 0.60 is never more than 0.38 away from *any* song.
+
+That means **every single song scores between 1.86 and 3.00 of the 3.00 energy points** for them. A spread of only 1.14. For a user asking for 0.90, the spread is 2.01.
+
+So for a moderate listener, the energy score is nearly a constant added to everything. It barely changes the ranking. Their results get decided by genre and mood alone. People at the extremes get a dial that actually sorts the catalog; people in the middle do not.
+
+The data makes it worse. Only three songs sit in that 0.50–0.75 middle band. **The listener the formula serves worst is also the listener with the fewest songs to match.**
+
+A fix would be to measure the gap against the catalog's real range instead of assuming 0 to 1.
+
+### The acoustic bonus can only make things calmer
+
+All 8 songs that qualify as acoustic sit at 0.42 energy or below. Not one is energetic.
+
+So ticking "I like acoustic" can only ever push you toward quiet music. A person who likes loud acoustic music gets the bonus on nothing. The flag is accepted, printed back as "yes," and then does nothing for them.
+
+### Genre only decides first place
+
+Because 13 genres have one song each, a genre match lifts one song and then has nothing left to give. After slot 1, the ranking is mostly an energy sort.
+
+This showed up clearly when I halved the genre weight: two profiles did not change at all. There was no genre signal left to re-weight.
+
+### Smaller gaps
+
+- Tempo, valence, and danceability are loaded but never scored.
+- Genre matching is exact text. So `indie pop` is as far from `pop` as `metal` is.
+- The system never says "I ran out of good matches." It always returns exactly 5 songs in the same confident format, whether the last one scored 1.90 or 5.41.
+- Input is not cleaned. A stray space in a genre silently loses the full 2.0 points. An energy value outside 0 to 1 zeroes the term for every song and the list becomes alphabetical.
+
+---
+
+## 7. Evaluation Process
+
+### Profiles I tested
+
+Four profiles, all using labels that really exist in the catalog.
+
+| Profile | Genre | Mood | Energy | Acoustic | What it tests |
+|---|---|---|---|---|---|
+| **High-Energy Pop** | pop | happy | 0.85 | no | A mainstream ask with some catalog depth |
+| **Chill Lofi** | lofi | chill | 0.35 | yes | The best-supported corner (3 lo-fi songs) |
+| **Deep Intense Rock** | rock | intense | 0.90 | no | A sparse genre with only one matching song |
+| **Acoustic Wind-Down** | folk | nostalgic | 0.30 | yes | Whether the acoustic flag does its own work |
+
+I looked for three things. Is the #1 pick the song a person would choose? Is the order below #1 defensible? Do different profiles actually return different lists?
+
+### What surprised me
+
+**Two opposite profiles returned almost the same songs.**
+
+High-Energy Pop and Deep Intense Rock share **4 of their 5 results**. Opposite genres. Opposite moods. Nearly the same list.
+
+The two calm profiles share 3 of 5.
+
+Here is the overlap between every pair:
+
+|  | Pop | Lofi | Rock | Folk |
+|---|---|---|---|---|
+| **Pop** | — | 0 | **4** | 0 |
+| **Lofi** | 0 | — | 0 | **3** |
+| **Rock** | 4 | 0 | — | 0 |
+| **Folk** | 0 | 3 | 0 | — |
+
+I expected genre, the heaviest term at 2.0, to keep the lists apart. It does not. Genre only separates first place. Below that, profiles cluster by **energy band**, not by taste.
+
+**The second surprise was how uneven the quality is.** Chill Lofi averaged 4.04 out of 5.50 across its top 5. Deep Intense Rock averaged 2.44. Same code, same scale, same confident formatting — but one list is real and the other is mostly filler. Nothing in the output tells you which one you got.
+
+### Comparing every pair of profiles
+
+**Pop vs. Lofi — 0 songs shared.** The cleanest contrast. Pop picks all sit at 0.76–0.93 energy. Lofi picks all sit at 0.28–0.42. Every lofi result also earns the acoustic bonus; no pop result does. This makes sense — the two profiles differ on all four signals at once, so they cannot collide. The output is valid.
+
+**Pop vs. Rock — 4 songs shared.** The most revealing pair. Only first place really differs: `Sunrise City` vs. `Storm Runner`. After that, both lists show the same high-energy songs in a slightly different order. This makes sense mechanically, because both ask for high energy (0.85 and 0.90) and only one rock song exists. Once that song is placed, there is no genre signal left and both fall back to the same energy sort. But it is not a *good* result. Someone who asked for intense rock should not get almost the same list as someone who asked for happy pop.
+
+**Pop vs. Acoustic Wind-Down — 0 songs shared.** Maximum separation, as intended: 0.85 against 0.30, plus opposite acoustic settings. But it is worth saying *why* it is so clean. Acoustic and low energy are tangled together in this data, so the acoustic flag just reinforces the energy split. It is not testing anything on its own. The separation is real but over-determined.
+
+**Lofi vs. Rock — 0 songs shared.** The widest gap in the set, 0.35 against 0.90, and it behaves correctly. The interesting difference is in *quality*, not content. Lofi's 4th pick still scores 3.40 because there are three lo-fi songs. Rock's 3rd pick is already down to 1.47 with a single energy reason. Same logic, very different usefulness. This pair is what exposed the catalog depth problem.
+
+**Lofi vs. Acoustic Wind-Down — 3 songs shared.** `Spacewalk Thoughts`, `Library Rain`, and `Coffee Shop Stories` show up in both. This makes sense and is mostly fair — both profiles want calm acoustic music, so they are genuine neighbors, and those three songs suit either one. The problem is the order below first place. For Acoustic Wind-Down, picks 2 through 5 span just 1.97 to 1.90, and all four earn the exact same two reasons. The acoustic bonus lifts all of them equally, so it breaks no ties. The order is deterministic but means nothing to the listener. Lofi escapes this only because it has real genre matches to rank first.
+
+**Rock vs. Acoustic Wind-Down — 0 songs shared.** The two opposite ends of the catalog. Both find their one true match (`Storm Runner` at 4.98, `Grandfather's Porch` at 5.38). Then both collapse the same way, into energy-only filler. This pair confirms the failure is not about a particular genre or energy level. It is caused by a thin catalog, and it looks identical at both ends.
+
+### Other tests I ran
+
+- **Adversarial profiles.** I tried `energy=2.5`, `energy=-1.0`, made-up genres and moods, `" Pop "` with extra spaces, and empty strings. Out-of-range energy zeroes the term for every song and the list becomes alphabetical. A stray space silently loses the genre match. Missing keys crash with `KeyError`.
+- **Weight experiment.** Halved genre, doubled energy. Two profiles reordered, two did not change at all. Written up in the README.
+- **Score bounds.** Swept a best case and a worst case across all 18 songs and confirmed scores land exactly in the expected range.
+
+---
+
+## 8. Intended Use and Non-Intended Use
+
+### What it is for
+
+- A classroom exercise in turning stated preferences into a ranked list.
+- Showing how scoring weights change an outcome. You can change one number and watch the ranking move.
+- Practicing explainability. Every result shows its own reasoning.
+- Exploring how bias enters a system through the *data*, not just the code.
+
+### What it is not for
+
+- **Real listeners.** An 18-song catalog cannot serve anyone. Most requests run out of real matches by the third result.
+- **Any decision that matters.** It has no evaluation against real preferences, so there is no evidence it is right beyond "the top pick looked sensible to me."
+- **Judging artists or songs.** A low score means the song did not match one profile. It says nothing about quality.
+- **A stand-in for how Spotify or YouTube work.** Those learn from the behavior of millions of people. This reads four fields you typed. The mechanism is completely different.
+- **Unsupervised use.** It never signals low confidence. A bad match is formatted exactly like a perfect one, so it can mislead anyone who does not read the scores.
+
+---
+
+## 9. Ideas for Improvement
+
+**1. Scale the energy gap to the real catalog range.** This fixes the biggest bias. Instead of assuming energy runs 0 to 1, measure it against the range that actually exists (0.22 to 0.97). Then "far away" means far away compared to real music, and moderate listeners get a dial that actually sorts things.
+
+**2. Add a confidence cutoff.** Stop returning 5 songs no matter what. Below some score, either drop the song or label it "weak match." Right now a 1.90 result and a 5.38 result look identical on screen, which is the most misleading thing the system does.
+
+**3. Make genre and mood fuzzy instead of exact.** `indie pop` should be closer to `pop` than `metal` is. A small table of related genres, or partial credit for a shared word, would fix the worst misranking I found — where a wrong-mood pop song beat a right-mood indie pop song.
+
+**4. Clean the input first.** Strip spaces, lowercase, check energy is between 0 and 1, and require the fields that must be there. Three of the four crashes and silent failures I found go away with about five lines of validation.
+
+**5. Score the fields already being loaded.** Tempo, valence, and danceability are sitting in memory doing nothing. Valence in particular would help with the sad-versus-happy conflicts the mood label handles poorly.
+
+---
+
+## 10. Personal Reflection
+
+### My biggest learning moment
+
+The thing I did not expect was how much of the system's behavior came from the **data** rather than the code.
+
+I spent most of my time tuning weights. Then I halved the genre weight and watched two of my four profiles not change at all. There was simply no genre signal left to adjust — 13 of the 15 genres have exactly one song. The weight I thought was most important could only ever decide first place.
+
+The energy bias was the same lesson in a different form. The formula looks neutral. It treats everyone the same way. But because the catalog clusters at the two energy extremes, the same neutral formula gives moderate listeners a nearly useless signal. **Nothing in the code is unfair. The unfairness comes from the gap between what the formula assumes and what the data contains.** That is a much harder bug to see, because the code reads fine.
+
+The moment it clicked was seeing the overlap table. Two profiles asking for opposite things returned 4 of the same 5 songs. No line of code was wrong. The catalog just did not have enough to say.
+
+### How AI tools helped, and where I had to check them
+
+AI was genuinely useful for the parts that were mechanical and the parts I would not have thought to try.
+
+It was fastest at **generating things to break my code with**. I asked for adversarial profiles and got a batch I would not have written myself — out-of-range energy, padded strings like `" Pop "`, empty genres. Three real bugs came out of that in a couple of minutes. The padded-string one was the best catch: a single space silently costs the full 2.0 genre points and nothing warns you.
+
+It was also good at **catching knock-on effects of my own changes**. When I doubled the energy weight, the max score moved from 5.50 to 6.00 — but `main.py` had `/ 5.50` hardcoded in a print statement. My output would have quietly shown every score against the wrong denominator. That got refactored into a `MAX_SCORE` constant derived from the weights, so the display can never drift from the math again.
+
+Where I had to double-check it:
+
+- **It made a transcription error pasting my own terminal output into the README.** One reason line read `+1.46` when the real output said `+1.40`. I only caught it because I compared against the actual run. If I had trusted the paste, my documentation would have contradicted my code. **Anything claiming to be verbatim output needs to be diffed against the real thing.**
+- **It reported tests as a step without them actually running.** `pytest` was not installed on the interpreter being used, so the suite never executed. The bounds check that did run was written on the spot, not part of the repo. "I verified it" and "the test suite passed" are not the same claim, and I had to go look at which one actually happened.
+- **It is confidently wrong in the same tone it is right.** Every answer reads equally sure. The only defense I found was to make it show me the numbers — the energy spread table, the overlap matrix — and then check those numbers against a run myself.
+
+The pattern I would keep: use AI to **generate candidates and catch second-order effects**, then verify anything numeric or anything claiming to be real output. It is much better at "here are eight ways this could break" than at "here is what your program printed."
+
+### Why simple rules still feel like recommendations
+
+This surprised me more than anything else.
+
+There is no learning here at all. It is four if-statements and a sort over 18 songs. But the output *feels* like a recommendation, and I think that comes down to three cheap tricks.
+
+**Ranking implies judgment.** Putting songs in an order suggests something weighed them against each other. A sort looks like an opinion.
+
+**Reasons imply understanding.** Every result says "genre match: lofi" and "energy 0.35 vs target 0.35." Those lines are just a log of which branches fired, but they read like the system thought about it. That is the trick I would most want people to notice, because the explanation is honest here and still creates an impression of insight that is not there.
+
+**A fixed-length list implies there was something to find.** It always returns exactly five. The 5th song in the Acoustic Wind-Down list scored 1.90 out of 5.50 and matched on nothing but being quiet — and it is formatted identically to the 5.38 match above it.
+
+That last one is the uncomfortable part. I used to assume a bad recommendation meant a bad algorithm. Now I think it more often means the system had nothing good to offer and said something anyway. A real service with millions of songs hides this better, but the same pressure exists: there is always a list to fill, and a confident-looking list is the default output of a system that found nothing.
+
+### What I would try next
+
+Four things, roughly in order of how much they would change the results.
+
+1. **Scale the energy gap to the catalog's real range** instead of assuming 0 to 1. This is the one change that fixes an actual fairness problem rather than a presentation problem.
+2. **Add a confidence cutoff** so weak matches are labelled or dropped. If the system cannot find five good songs, it should say so instead of padding.
+3. **Make genre and mood fuzzy** so `indie pop` sits nearer to `pop` than `metal` does. This fixes the single worst misranking I found.
+4. **Grow the catalog before tuning anything else.** This is the real lesson of the project. Most of what I tried to fix with weights was actually a shortage of songs. I would rather test the same scoring rules against 200 songs than keep adjusting numbers against 18 — I suspect half my "bugs" would disappear and a different set would show up.

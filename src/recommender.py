@@ -68,13 +68,19 @@ def load_songs(csv_path: str) -> List[Dict]:
     print(f"Loaded songs: {len(songs)}")
     return songs
 
+# EXPERIMENT (weight shift): genre halved 2.0 -> 1.0, energy doubled 1.5 -> 3.0.
+# Mood and the acoustic bonus are unchanged. Max score moves 5.50 -> 6.00.
+GENRE_POINTS = 1.0
+MOOD_POINTS = 1.5
+ENERGY_POINTS = 3.0
+ACOUSTIC_POINTS = 0.5
+ACOUSTIC_THRESHOLD = 0.6
+
+# Energy closeness is in [0, 1], so every term is at its stated maximum here.
+MAX_SCORE = GENRE_POINTS + MOOD_POINTS + ENERGY_POINTS + ACOUSTIC_POINTS
+
 def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
     """Scores one song against the user's preferences, returning (score, reasons)."""
-    GENRE_POINTS = 2.0
-    MOOD_POINTS = 1.5
-    ENERGY_POINTS = 1.5
-    ACOUSTIC_POINTS = 0.5
-    ACOUSTIC_THRESHOLD = 0.6
 
     score = 0.0
     reasons: List[str] = []
